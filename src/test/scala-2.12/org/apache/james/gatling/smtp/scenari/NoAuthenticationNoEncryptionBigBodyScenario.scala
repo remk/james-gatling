@@ -1,6 +1,7 @@
 package org.apache.james.gatling.smtp.scenari
 
 import io.gatling.core.Predef._
+import io.gatling.core.scenario.Simulation
 import org.apache.james.gatling.control._
 import org.apache.james.gatling.jmap.scenari.common.Configuration._
 import org.apache.james.gatling.smtp.scenari.common.Configuration.smtp

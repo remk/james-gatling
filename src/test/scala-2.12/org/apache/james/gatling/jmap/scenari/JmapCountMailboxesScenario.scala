@@ -1,6 +1,6 @@
 package org.apache.james.gatling.jmap.scenari
 
-import io.gatling.core.Predef.{Simulation, atOnceUsers, scenario, _}
+import io.gatling.core.Predef.{Simulation, atOnceUsers, clock, openInjectionProfileFactory, scenario}
 import org.apache.james.gatling.control.UserCreator
 import org.apache.james.gatling.jmap.JmapMailboxes
 import org.apache.james.gatling.jmap.scenari.common.Configuration.{BaseJamesWebAdministrationUrl, ScenarioDuration, UserCount}

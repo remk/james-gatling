@@ -1,6 +1,7 @@
 package org.apache.james.gatling.jmap.scenari
 
-import io.gatling.core.Predef._
+import io.gatling.core.Predef.{atOnceUsers, clock, configuration, csv, exec, openInjectionProfileFactory, scenario}
+import io.gatling.core.scenario.Simulation
 import org.apache.james.gatling.control.{Password, User, Username}
 import org.apache.james.gatling.jmap.scenari.common.Configuration._
 import org.apache.james.gatling.jmap.scenari.common.{CommonSteps, HttpSettings}

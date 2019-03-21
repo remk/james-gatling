@@ -1,6 +1,7 @@
 package org.apache.james.gatling.jmap.scenari
 
-import io.gatling.core.Predef._
+import io.gatling.core.Predef.{atOnceUsers, clock, exec, openInjectionProfileFactory, scenario}
+import io.gatling.core.scenario.Simulation
 import org.apache.james.gatling.control.UserCreator
 import org.apache.james.gatling.jmap.scenari.common.Configuration._
 import org.apache.james.gatling.jmap.scenari.common.{CommonSteps, HttpSettings}
@@ -16,7 +17,7 @@ class JmapAllScenario extends Simulation {
   val scn = scenario("JmapAllScenarios")
     .exec(CommonSteps.provisionSystemMailboxes(users))
     .during(ScenarioDuration) {
-        exec(JmapMessages.sendMessagesRandomlyWithRetryAuthentication(users))
+      exec(JmapMessages.sendMessagesRandomlyWithRetryAuthentication(users))
         .pause(1 second, 5 seconds)
         .exec(JmapMailboxes.getSystemMailboxesWithRetryAuthentication)
         .exec(JmapMessages.listMessagesWithRetryAuthentication())

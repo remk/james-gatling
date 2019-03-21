@@ -6,7 +6,9 @@ import io.gatling.core.protocol.{Protocol, ProtocolComponents, ProtocolKey}
 import io.gatling.core.session.Session
 
 object SmtpProtocol {
+
   val SmtpProtocolKey = new ProtocolKey[SmtpProtocol, SmtpComponents] {
+
     override def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[SmtpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
     override def defaultProtocolValue(configuration: GatlingConfiguration): SmtpProtocol = default
@@ -34,6 +36,6 @@ object SmtpProtocol {
 case class SmtpProtocol(
                          host: String,
                          ssl: Boolean,
-                         port: Integer,
+                         port: Int,
                          auth: Boolean) extends Protocol {
 }
