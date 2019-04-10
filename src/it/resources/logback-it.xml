@@ -1,0 +1,19 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="warn">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <!--Uncomment for logging ALL HTTP request and responses -->
+    <logger name="io.gatling.http.ahc" level="TRACE" />
+    <logger name="io.gatling.http.response" level="TRACE" />
+    <!-- Uncomment for logging ONLY FAILED HTTP request and responses -->
+    <!--<logger name="io.gatling.http.ahc" level="DEBUG" />-->
+    <!--<logger name="io.gatling.http.response" level="DEBUG" />-->
+</configuration>

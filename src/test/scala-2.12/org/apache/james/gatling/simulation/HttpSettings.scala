@@ -5,8 +5,8 @@ import io.gatling.http.Predef.http
 
 object HttpSettings {
 
-  def httpProtocol = http
-    .baseUrl(Configuration.BaseJmapUrl)
+  def httpProtocol(getMappedPort : Int => Int) = http
+    .baseUrl(Configuration.BaseJmapUrl(getMappedPort))
     .acceptHeader("application/json")
     .contentTypeHeader("application/json; charset=UTF-8")
 
