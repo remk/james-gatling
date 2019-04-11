@@ -6,7 +6,7 @@ import org.apache.james.gatling.control.{Password, RandomUserPicker, User, UserF
 import org.apache.james.gatling.jmap.scenari.FeederJmapAllScenario
 import org.apache.james.gatling.simulation.{Configuration, HttpSettings}
 
-class FeederJmapAllSimulation extends Simulation {
+class FeederJmapAllSimulation(getMappedPort : Int => Int = identity) extends Simulation {
 
   private def recordValueToString(recordValue: Any):String = recordValue match {
     case s: String => s
@@ -25,5 +25,5 @@ class FeederJmapAllSimulation extends Simulation {
     .generate(Configuration.ScenarioDuration, RandomUserPicker(users))
       .feed(UserFeeder.toFeeder(users))
       .inject(atOnceUsers(Configuration.UserCount)))
-    .protocols(HttpSettings.httpProtocol)
+    .protocols(HttpSettings.httpProtocol(getMappedPort))
 }

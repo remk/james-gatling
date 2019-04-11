@@ -11,11 +11,11 @@ import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class NoAuthenticationNoEncryptionBigBodySimulation extends Simulation {
+class NoAuthenticationNoEncryptionBigBodySimulation(getMappedPort : Int => Int = identity) extends Simulation {
 
   private val users = Await.result(
     awaitable = Future.sequence(
-      new UserCreator(Configuration.BaseJamesWebAdministrationUrl).createUsersWithInboxAndOutbox(Configuration.UserCount)),
+      new UserCreator(Configuration.BaseJamesWebAdministrationUrl(getMappedPort)).createUsersWithInboxAndOutbox(Configuration.UserCount)),
     atMost = Inf)
 
 

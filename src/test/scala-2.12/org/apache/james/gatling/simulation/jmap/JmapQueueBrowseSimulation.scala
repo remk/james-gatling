@@ -10,14 +10,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future}
 
-class JmapQueueBrowseSimulation extends Simulation {
+class JmapQueueBrowseSimulation(getMappedPort : Int => Int = identity) extends Simulation {
 
   private val users = Await.result(
     awaitable = Future.sequence(
-      new UserCreator(Configuration.BaseJamesWebAdministrationUrl).createUsersWithInboxAndOutbox(Configuration.UserCount)),
+      new UserCreator(Configuration.BaseJamesWebAdministrationUrl(getMappedPort)).createUsersWithInboxAndOutbox(Configuration.UserCount)),
     atMost = Inf)
 
-  private val webAdmin = new JamesWebAdministrationQuery(Configuration.BaseJamesWebAdministrationUrl)
+  private val webAdmin = new JamesWebAdministrationQuery(Configuration.BaseJamesWebAdministrationUrl(getMappedPort))
 
   private val scenario = new JmapQueueBrowseScenario()
 
@@ -25,5 +25,5 @@ class JmapQueueBrowseSimulation extends Simulation {
     .generate(Configuration.ScenarioDuration, RandomUserPicker(users), webAdmin)
       .feed(UserFeeder.toFeeder(users))
       .inject(atOnceUsers(Configuration.UserCount)))
-    .protocols(HttpSettings.httpProtocol)
+    .protocols(HttpSettings.httpProtocol(getMappedPort))
 }

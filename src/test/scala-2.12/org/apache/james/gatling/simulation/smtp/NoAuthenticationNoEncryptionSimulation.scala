@@ -11,17 +11,17 @@ import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class NoAuthenticationNoEncryptionSimulation extends Simulation {
+class NoAuthenticationNoEncryptionSimulation(getMappedPort: Int => Int = identity) extends Simulation {
 
   private val users = Await.result(
     awaitable = Future.sequence(
-      new UserCreator(Configuration.BaseJamesWebAdministrationUrl).createUsersWithInboxAndOutbox(Configuration.UserCount)),
+      new UserCreator(Configuration.BaseJamesWebAdministrationUrl(getMappedPort)).createUsersWithInboxAndOutbox(Configuration.UserCount)),
     atMost = Inf)
 
   private val scenario = new NoAuthenticationNoEncryptionScenario()
 
   setUp(scenario.generate(Configuration.ScenarioDuration)
-      .feed(UserFeeder.toFeeder(users))
-      .inject(nothingFor(10 seconds), rampUsers(Configuration.UserCount) during(10 seconds)))
+    .feed(UserFeeder.toFeeder(users))
+    .inject(nothingFor(10 seconds), rampUsers(Configuration.UserCount) during (10 seconds)))
     .protocols(smtp)
 }

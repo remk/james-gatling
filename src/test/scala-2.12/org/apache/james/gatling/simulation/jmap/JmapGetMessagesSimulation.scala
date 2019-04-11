@@ -10,11 +10,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future}
 
-class JmapGetMessagesSimulation extends Simulation {
+class JmapGetMessagesSimulation(getMappedPort : Int => Int = identity) extends Simulation {
 
   private val users = Await.result(
     awaitable = Future.sequence(
-      new UserCreator(Configuration.BaseJamesWebAdministrationUrl).createUsersWithInboxAndOutbox(Configuration.UserCount)),
+      new UserCreator(Configuration.BaseJamesWebAdministrationUrl(getMappedPort)).createUsersWithInboxAndOutbox(Configuration.UserCount)),
     atMost = Inf)
 
   private val scenario = new JmapGetMessagesScenario()
@@ -23,5 +23,5 @@ class JmapGetMessagesSimulation extends Simulation {
     .generate(Configuration.ScenarioDuration, RandomUserPicker(users), Configuration.RandomlySentMails)
       .feed(UserFeeder.toFeeder(users))
       .inject(atOnceUsers(Configuration.UserCount)))
-    .protocols(HttpSettings.httpProtocol)
+    .protocols(HttpSettings.httpProtocol(getMappedPort))
 }

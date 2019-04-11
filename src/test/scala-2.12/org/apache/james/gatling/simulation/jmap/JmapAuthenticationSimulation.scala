@@ -10,17 +10,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future}
 
-class JmapAuthenticationSimulation extends Simulation {
+class JmapAuthenticationSimulation(getMappedPort : Int => Int = identity) extends Simulation {
 
   private val users = Await.result(
     awaitable = Future.sequence(
-      new UserCreator(Configuration.BaseJamesWebAdministrationUrl).createUsersWithInboxAndOutbox(Configuration.UserCount)),
+      new UserCreator(Configuration.BaseJamesWebAdministrationUrl(getMappedPort)).createUsersWithInboxAndOutbox(Configuration.UserCount)),
     atMost = Inf)
 
   private val scenario = new JmapAuthenticationScenario()
 
-  setUp(scenario.generate()
-      .feed(UserFeeder.toFeeder(users))
+  setUp(scenario.generate(UserFeeder.toFeeder(users))
       .inject(atOnceUsers(Configuration.UserCount)))
-    .protocols(HttpSettings.httpProtocol)
+    .protocols(HttpSettings.httpProtocol(getMappedPort))
 }
