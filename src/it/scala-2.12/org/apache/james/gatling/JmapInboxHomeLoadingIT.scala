@@ -1,7 +1,7 @@
 package org.apache.james.gatling
 
-import org.apache.james.gatling.jmap.scenari.JmapHomeLoadingScenario
+import org.apache.james.gatling.jmap.scenari.JmapInboxHomeLoadingScenario
 
 class JmapInboxHomeLoadingIT extends JmapIT {
-  scenario(feederBuilder => new JmapHomeLoadingScenario().generate(feederBuilder))
+  scenario(feederBuilder => new JmapInboxHomeLoadingScenario().generate(feederBuilder))
 }
