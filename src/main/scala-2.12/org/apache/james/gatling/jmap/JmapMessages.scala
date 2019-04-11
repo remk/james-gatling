@@ -111,6 +111,14 @@ object JmapMessages {
           "#0"
           ]]"""))
 
+  def listFirstNthMessages(numberOfMessages : Int) =
+    JmapAuthentication.authenticatedQuery("listMessages", "/jmap")
+      .body(StringBody(
+        """[[
+          "getMessageList", { "limit" : 30 },
+          "#0"
+          ]]"""))
+
   val listMessagesChecks: Seq[HttpCheck] = List(
       status.is(200),
       JmapChecks.noError,
