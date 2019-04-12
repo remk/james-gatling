@@ -21,6 +21,8 @@ object JamesServer {
 
     private def administration = new JamesWebAdministration(new URL(s"http://localhost:$mappedWebadminPort"))
 
+    def james = s"http://localhost:$mappedJmapPort"
+
     def addUser(user: User): Unit = Await.result(administration.addUser(user), 30 seconds)
 
     def addDomain(domain: Domain): Unit = Await.result(administration.addDomain(domain), 30 seconds)
