@@ -14,4 +14,5 @@ object Fixture {
     val feeder = users.map(user => Map("username" -> user.username, "password" -> user.password))
     feeder.toIterator
   }
+
 }
