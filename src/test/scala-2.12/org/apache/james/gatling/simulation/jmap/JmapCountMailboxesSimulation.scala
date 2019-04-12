@@ -1,7 +1,6 @@
 package org.apache.james.gatling.simulation.jmap
 
 import io.gatling.core.Predef._
-import io.gatling.core.scenario.Simulation
 import org.apache.james.gatling.control.{UserCreator, UserFeeder}
 import org.apache.james.gatling.jmap.scenari.JmapCountMailboxesScenario
 import org.apache.james.gatling.simulation.{Configuration, HttpSettings}
@@ -10,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future}
 
-class JmapCountMailboxesSimulation(getMappedPort : Int => Int = identity) extends Simulation {
+class JmapCountMailboxesSimulation extends Simulation with DefaultPortMapping {
 
   private val users = Await.result(
     awaitable = Future.sequence(
@@ -20,7 +19,7 @@ class JmapCountMailboxesSimulation(getMappedPort : Int => Int = identity) extend
   private val scenario = new JmapCountMailboxesScenario()
 
   setUp(scenario.generate(Configuration.ScenarioDuration)
-      .feed(UserFeeder.toFeeder(users))
-      .inject(atOnceUsers(Configuration.UserCount)))
+    .feed(UserFeeder.toFeeder(users))
+    .inject(atOnceUsers(Configuration.UserCount)))
     .protocols(HttpSettings.httpProtocol(getMappedPort))
 }

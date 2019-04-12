@@ -1,7 +1,6 @@
 package org.apache.james.gatling.simulation.jmap
 
 import io.gatling.core.Predef._
-import io.gatling.core.scenario.Simulation
 import org.apache.james.gatling.control.{RandomUserPicker, UserCreator, UserFeeder}
 import org.apache.james.gatling.jmap.scenari.JmapSendMessagesScenario
 import org.apache.james.gatling.simulation.{Configuration, HttpSettings}
@@ -10,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future}
 
-class JmapSendMessagesSimulation(getMappedPort: Int => Int = identity) extends Simulation {
+class JmapSendMessagesSimulation extends Simulation with DefaultPortMapping {
 
   private val users = Await.result(
     awaitable = Future.sequence(
