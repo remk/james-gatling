@@ -1,4 +1,4 @@
-package org.apache.james.gatling.jmap.scenari
+package org.apache.james.gatling.jmap.scenari.realusage
 
 import io.gatling.core.Predef._
 import io.gatling.core.feeder.FeederBuilder
@@ -33,10 +33,6 @@ class JmapInboxHomeLoadingScenario {
       .body(StringBody("""[["getMailboxes",{},"#0"]]"""))
       .check(jsonPath(inboxIdPath).find.saveAs(Keys.inbox))
 
-  val getVacationResponse: HttpRequestBuilder =
-    JmapAuthentication.authenticatedQuery("getVacationResponse", "/jmap")
-      .body(StringBody(s"""[["getVacationResponse",{},"#0"]]"""))
-
   val listMessagesInInbox: HttpRequestBuilder =
     JmapAuthentication.authenticatedQuery("listMessagesInInbox", "/jmap")
       .body(StringBody(
@@ -51,7 +47,7 @@ class JmapInboxHomeLoadingScenario {
       .check(jsonPath("$[0][1].messageIds[*]").findAll.saveAs(Keys.messageIds))
 
 
-  private val getMessagesDetails: HttpRequestBuilder = JmapAuthentication.authenticatedQuery("getMessages", "/jmap")
+  private val getMessages: HttpRequestBuilder = JmapAuthentication.authenticatedQuery("getMessages", "/jmap")
     .body(StringBody(
       """[["getMessages",
         |{"properties": ["id","blobId","threadId","headers","subject","from","to","cc","bcc","replyTo","preview","date","isUnread",
@@ -70,10 +66,10 @@ class JmapInboxHomeLoadingScenario {
     scenario("JmapHomeLoadingScenario")
       .feed(feederBuilder)
       .exec(CommonSteps.authentication())
-      .exec(RetryAuthentication.execWithRetryAuthentication(listAllMailboxesAndSelectFirstOne, JmapMailbox.getMailboxesChecks))
-      .exec(RetryAuthentication.execWithRetryAuthentication(getVacationResponse, isSuccess))
-      .exec(RetryAuthentication.execWithRetryAuthentication(listMessagesInInbox, JmapMessages.listMessagesChecks))
-      .exec(RetryAuthentication.execWithRetryAuthentication(getMessagesDetails, isSuccess))
+      .group(InboxHomeLoading.name)(
+        exec(RetryAuthentication.execWithRetryAuthentication(listAllMailboxesAndSelectFirstOne, JmapMailbox.getMailboxesChecks))
+          .exec(RetryAuthentication.execWithRetryAuthentication(listMessagesInInbox, JmapMessages.listMessagesChecks))
+          .exec(RetryAuthentication.execWithRetryAuthentication(getMessages, isSuccess)))
 
   }
 

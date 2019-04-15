@@ -2,7 +2,7 @@ package org.apache.james.gatling
 
 import java.io.{BufferedReader, InputStreamReader}
 
-import org.apache.james.gatling.jmap.scenari.JmapInboxHomeLoadingScenario
+import org.apache.james.gatling.jmap.scenari.realusage.JmapInboxHomeLoadingScenario
 
 class JmapInboxHomeLoadingIT extends JmapIT {
   before {
