@@ -1,37 +1,38 @@
 package org.apache.james.gatling.jmap.scenari.realusage
 
+import java.util.concurrent.ThreadLocalRandom
+
 import io.gatling.core.Predef._
-import io.gatling.core.feeder.FeederBuilder
+import io.gatling.core.feeder.{FeederBuilder, Record}
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBuilder
+import org.apache.james.gatling.control.{UserFeeder, Username}
 import org.apache.james.gatling.jmap._
 
-class JmapInboxHomeLoadingScenario {
+class JmapInboxHomeLoadingScenario() {
 
-  object Keys {
-
+  private object Keys {
     val inbox = "inboxID"
-
     val messageIds = "messageIds"
-
     val messagesDetailList = "messagesDetailList"
-
+    val mainMailboxId = "mainMailboxId"
+    val subMailboxIndex = "subMailboxIndex"
   }
 
-  val isSuccess: Seq[HttpCheck] = List(
+  private val isSuccess: Seq[HttpCheck] = List(
     status.is(200),
     JmapChecks.noError)
 
-
   private val mailboxListPath = "[0][1].list"
-  private val inboxIdPath = s"$$$mailboxListPath[?(@.role == 'inbox')].id"
 
-  val listAllMailboxesAndSelectFirstOne: HttpRequestBuilder =
+  private val mailboxIdPath = s"$$$mailboxListPath[?(@.name == 'smbx$${subMailboxIndex}' && @.parentId == '$${mainMailboxId}')].id"
+
+  private val listAllMailboxesAndSelectFirstOne: HttpRequestBuilder =
     JmapAuthentication.authenticatedQuery("getMailboxes", "/jmap")
       .body(StringBody("""[["getMailboxes",{},"#0"]]"""))
-      .check(jsonPath(inboxIdPath).find.saveAs(Keys.inbox))
+      .check(jsonPath(mailboxIdPath).find.saveAs(Keys.inbox))
 
   val listMessagesInInbox: HttpRequestBuilder =
     JmapAuthentication.authenticatedQuery("listMessagesInInbox", "/jmap")
@@ -43,7 +44,7 @@ class JmapInboxHomeLoadingScenario {
           |"collapseThreads":false,
           |"fetchMessages":false,
           |"position":0,
-          |"limit":200},"#0"]]""".stripMargin))
+          |"limit":30},"#0"]]""".stripMargin))
       .check(jsonPath("$[0][1].messageIds[*]").findAll.saveAs(Keys.messageIds))
 
 
@@ -61,10 +62,27 @@ class JmapInboxHomeLoadingScenario {
         |,"ids": ${messageIds.jsonStringify()}},
         |"#0"]]""".stripMargin))
 
+  private def addSelectedMailboxesToFeeder(record: Record[Any],
+                                           mainMailboxesIdsByIndexForUsers: Map[Username, Map[Int, MailboxId]],
+                                           nbMainMailboxes: Int,
+                                           nbSubMailboxes: Int): Record[Any] = {
+    val userName = record.get(UserFeeder.UsernameSessionParam)
+    userName match {
+      case Some(u: String) =>
+        val mainMailboxIndex = ThreadLocalRandom.current().nextInt(nbMainMailboxes)
+        val mainMailboxId = mainMailboxesIdsByIndexForUsers(Username(u))(mainMailboxIndex)
+        val subMailboxIndex = ThreadLocalRandom.current().nextInt(nbSubMailboxes)
+        record ++ Map(Keys.subMailboxIndex -> subMailboxIndex, Keys.mainMailboxId -> mainMailboxId.id)
+      case _ => record
+    }
+  }
 
-  def generate(feederBuilder: FeederBuilder): ScenarioBuilder = {
+  def generate(feederBuilder: FeederBuilder,
+               mainMailboxesIdsByIndexForUsers: => Map[Username, Map[Int, MailboxId]],
+               nbMainMailboxes: Int,
+               nbSubMailboxesPerMainOnes: Int): ScenarioBuilder = {
     scenario("JmapHomeLoadingScenario")
-      .feed(feederBuilder)
+      .feed(() => feederBuilder().map(record => addSelectedMailboxesToFeeder(record, mainMailboxesIdsByIndexForUsers, nbMainMailboxes, nbSubMailboxesPerMainOnes)))
       .exec(CommonSteps.authentication())
       .group(InboxHomeLoading.name)(
         exec(RetryAuthentication.execWithRetryAuthentication(listAllMailboxesAndSelectFirstOne, JmapMailbox.getMailboxesChecks))

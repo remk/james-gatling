@@ -1,12 +1,15 @@
 package org.apache.james.gatling.simulation.utils
 
-case class UsageFrequency(nbUsagePerHourPerUser: Int, nbUserPerHour: Int) {
-  def paceFromFrequencyInMillis: Long = {
-    nbUsagePerHourPerUser.toLong * nbUserPerHour * UsageFrequency.MILLIS_IN_ONE_HOUR
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.Duration
+
+case class UsageFrequency(nbUsagePerHourPerUser: Int, nbUser: Int) {
+  def paceFromFrequency: Duration = {
+    Duration(nbUsagePerHourPerUser.toLong * nbUser, TimeUnit.HOURS)
   }
 }
 
 object UsageFrequency {
-  private val MILLIS_IN_ONE_HOUR = 3600 * 1000
-  val ONE_TIME_PER_USER_PER_HOUR_WITH_FIVE_HUNDRED_USERS = UsageFrequency(1, 500)
+  val ONE_TIME_PER_USER_PER_HOUR_FOR_FIFTY_THOUSANDS_USERS = UsageFrequency(1, 50000)
 }
