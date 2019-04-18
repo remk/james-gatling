@@ -29,7 +29,7 @@ object JMapUtils {
           "clientVersion": "42.0",
           "deviceName": "Joe Blogg’s iPhone"}"""
     wsClient.url(s"$jmapUrl/authentication")
-      .addHttpHeaders(Map("Content-Type" -> "application/json; charset=UTF-8", "Accept" -> "application/json").toList: _*)
+      .addHttpHeaders(JmapHttp.HEADERS_JSON.toList: _*)
       .post(
         body
       ).map(r => (Json.parse(r.body) \ "continuationToken").validate[String].get)
@@ -41,7 +41,7 @@ object JMapUtils {
           "method": "password",
           "password": "${user.password.value}"}"""
     wsClient.url(s"$jmapUrl/authentication")
-      .addHttpHeaders(Map("Content-Type" -> "application/json; charset=UTF-8", "Accept" -> "application/json").toList: _*)
+      .addHttpHeaders(JmapHttp.HEADERS_JSON.toList: _*)
       .post(body).map(r => (Json.parse(r.body) \ "accessToken").validate[String].get)
   }
 
@@ -57,8 +57,7 @@ object JMapUtils {
 
   private def listMailboxesWithFilterOnName(jmapUrl: String, accessToken: String, filterOnName: MailboxName => Boolean) =
     wsClient.url(jmapUrl + "/jmap")
-      .addHttpHeaders(Map("Content-Type" -> "application/json; charset=UTF-8", "Accept" -> "application/json",
-        "Authorization" -> accessToken).toList: _*)
+      .addHttpHeaders((JmapHttp.HEADERS_JSON ++ Map("Authorization" -> accessToken)).toList: _*)
       .post("""[["getMailboxes",{},"#0"]]""").map {
       response =>
         (Json.parse(response.body) \ 0 \ 1 \ "list").validate[List[JmapMailbox]] match {
