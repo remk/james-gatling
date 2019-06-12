@@ -1,4 +1,4 @@
-package org.apache.james.gatling
+package org.apache.james.gatling.smtp
 
 import io.gatling.core.Predef._
 import io.gatling.core.feeder.FeederBuilder
@@ -6,9 +6,9 @@ import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.protocol.Protocol
 import io.gatling.core.structure.ScenarioBuilder
 import org.apache.james.gatling.Fixture.{bart, simpsonDomain}
+import org.apache.james.gatling.JamesServer
 import org.apache.james.gatling.JamesServer.RunningServer
 import org.apache.james.gatling.control.UserFeeder
-import org.apache.james.gatling.smtp.SmtpProtocol
 import org.slf4j
 import org.slf4j.LoggerFactory
 
