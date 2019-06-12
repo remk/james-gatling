@@ -2,7 +2,7 @@ package org.apache.james.gatling.simulation
 
 import io.gatling.core.Predef._
 import io.gatling.core.assertion.AssertionWithPathAndTarget
-import io.gatling.core.feeder.SourceFeederBuilder
+import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
 import org.apache.james.gatling.control.{Password, User, UserFeeder, Username}
 import org.apache.james.gatling.jmap.MailboxName
@@ -26,7 +26,7 @@ trait SimulationOnMailCorpus {
       ++ (0 until NB_ROOT_MAILBOXES).flatMap(rootIndex => (0 until NB_SUB_MAILBOXES).map(subIndex => s"rmbx$rootIndex.smbx$subIndex")))
     .map(new MailboxName(_))
 
-  protected val feeder: SourceFeederBuilder[String] = UserFeeder.toFeeder(getUsers).circular
+  protected val feeder: FeederBuilder = UserFeeder.toFeeder(getUsers).circular
 
   protected def injectUsersInScenario(scenario: ScenarioBuilder, nbUsers: Int = 50000) = {
     scenario
