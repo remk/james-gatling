@@ -2,7 +2,7 @@ package org.apache.james.gatling.jmap
 
 import io.gatling.core.Predef._
 import io.gatling.core.json.Json
-import io.gatling.core.session.Session
+import io.gatling.core.session.{Expression, Session}
 import io.gatling.http.Predef._
 import io.gatling.http.check.HttpCheck
 import org.apache.james.gatling.control.User
@@ -30,14 +30,14 @@ object JmapMessages {
   type JmapParameters = Map[String, Any]
   val NO_PARAMETERS : JmapParameters = Map()
 
-  def sendMessages(messageId: MessageId, recipientAddress: RecipientAddress, subject: Subject, textBody: TextBody) =
+  def sendMessages(messageId: Expression[MessageId], recipientAddress: RecipientAddress, subject: Subject, textBody: TextBody) =
     JmapAuthentication.authenticatedQuery("sendMessages", "/jmap")
       .body(StringBody(
         s"""[[
           "setMessages",
           {
             "create": {
-              "${messageId.id}" : {
+              "${messageId}" : {
                 "from": {"name":"$${username}", "email": "$${username}"},
                 "to":  [{"name":"${recipientAddress.address}", "email": "${recipientAddress.address}"}],
                 "textBody": "${textBody.text}",
@@ -91,18 +91,18 @@ object JmapMessages {
   def hasBeenUpdated =
     jsonPath("$..updated[*]").count.gt(0)
 
-  def sendMessagesChecks(messageId: MessageId): Seq[HttpCheck] = List(
+  def sendMessagesChecks(messageId: Expression[MessageId]): Seq[HttpCheck] = List(
     status.is(200),
     JmapChecks.noError,
     JmapChecks.created(messageId))
 
-  def sendMessagesWithRetryAuthentication(messageId: MessageId, recipientAddress: RecipientAddress, subject: Subject, textBody: TextBody) =
+  def sendMessagesWithRetryAuthentication(messageId: Expression[MessageId], recipientAddress: RecipientAddress, subject: Subject, textBody: TextBody) =
     execWithRetryAuthentication(sendMessages(messageId, recipientAddress, subject, textBody), sendMessagesChecks(messageId))
 
 
-  def sendMessagesToUserWithRetryAuthentication(userPicker: UserPicker) =
+  def sendMessagesToUserWithRetryAuthentication(userPicker: UserPicker, messageId: Expression[MessageId]) =
     sendMessagesWithRetryAuthentication(
-      messageId = MessageId(),
+      messageId = messageId,
       recipientAddress = RecipientAddress(userPicker.pick()),
       subject = Subject(),
       textBody = TextBody())

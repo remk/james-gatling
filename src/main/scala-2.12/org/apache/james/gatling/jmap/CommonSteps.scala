@@ -30,7 +30,7 @@ object CommonSteps {
   def provisionUsersWithMessages(userPicker: UserPicker, numberOfMessages: Int): ChainBuilder =
     exec(provisionSystemMailboxes())
       .repeat(numberOfMessages, loopVariableName) {
-        exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker))
+        exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker, session => MessageId()))
           .pause(1 second, 2 seconds)
       }
       .pause(5 second)
@@ -40,7 +40,7 @@ object CommonSteps {
       .repeat(numberOfMailboxes) {
         provisionNewMailboxAndRememberItsIdAndName()
         .repeat(numberOfMessages) {
-          exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker))
+          exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker, session => MessageId()))
         }
         .pause(1 second, 2 seconds)
         .exec(JmapMessages.retrieveSentMessageIds())

@@ -5,7 +5,7 @@ import io.gatling.core.structure.ScenarioBuilder
 import org.apache.james.gatling.control.JamesWebAdministrationQuery
 import org.apache.james.gatling.control.UserFeeder.UserFeeder
 import org.apache.james.gatling.jmap.CommonSteps.UserPicker
-import org.apache.james.gatling.jmap.{CommonSteps, JmapMessages}
+import org.apache.james.gatling.jmap.{CommonSteps, JmapMessages, MessageId}
 
 import scala.concurrent.duration.Duration
 
@@ -18,7 +18,7 @@ class JmapQueueBrowseScenario {
     .during(duration) {
       exec(
         randomSwitch(
-          99.0 -> JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker),
+          99.0 -> JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker, session => MessageId()),
           1.0 -> webadmin.getMailQueueMails("spool")))
     }
   }

@@ -4,7 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
 import org.apache.james.gatling.jmap.CommonSteps.UserPicker
-import org.apache.james.gatling.jmap.{CommonSteps, JmapMailbox, JmapMessages}
+import org.apache.james.gatling.jmap.{CommonSteps, JmapMailbox, JmapMessages, MessageId}
 
 import scala.concurrent.duration._
 
@@ -16,7 +16,7 @@ class FeederJmapAllScenario {
       .feed(feederBuilder)
       .during(duration) {
         exec(CommonSteps.authentication())
-        .exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker))
+        .exec(JmapMessages.sendMessagesToUserWithRetryAuthentication(userPicker, session => MessageId()))
         .pause(1 second, 5 seconds)
         .exec(JmapMailbox.getSystemMailboxesWithRetryAuthentication)
         .exec(JmapMessages.listMessagesWithRetryAuthentication())
